@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DeletedItems:jar">
+    <output-path>$USER_HOME$/Downloads/TestServer/plugins/</output-path>
+    <root id="archive" name="DeletedItems.jar">
+      <element id="module-output" name="DeletedItems" />
+    </root>
+  </artifact>
+</component>
