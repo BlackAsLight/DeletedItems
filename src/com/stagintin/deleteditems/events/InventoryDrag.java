@@ -8,9 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
 public class InventoryDrag implements Listener {
-	private Main plugin;
 	public InventoryDrag(Main plugin) {
-		this.plugin = plugin;
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 

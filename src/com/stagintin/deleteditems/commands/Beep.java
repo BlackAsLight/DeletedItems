@@ -6,9 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class Beep implements CommandExecutor {
-	private Main plugin;
 	public Beep(Main plugin){
-		this.plugin = plugin;
 		plugin.getCommand("beep").setExecutor(this);
 	}
 
