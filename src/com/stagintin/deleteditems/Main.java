@@ -2,8 +2,10 @@ package com.stagintin.deleteditems;
 
 import com.stagintin.deleteditems.commands.*;
 import com.stagintin.deleteditems.events.*;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -12,6 +14,7 @@ import java.util.*;
 
 public class Main extends JavaPlugin {
 	public final static String path = "plugins/DeletedItems/";
+	private static Economy econ;
 	private static YamlConfiguration file;
 	private static List<ItemStack> itemStacks;
 	private static int count = 0;
@@ -20,6 +23,8 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		super.onEnable();
 
+		/* Startup
+		-------------------------*/
 		// Add Config File
 		saveDefaultConfig();
 
@@ -36,11 +41,30 @@ public class Main extends JavaPlugin {
 		if (itemStacks == null)
 			itemStacks = new ArrayList<>();
 
-		// Commands
+		/* Dependencies
+		-------------------------*/
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			getLogger().warning("Plugin Dependency: Vault is not detected!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+		else {
+			RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+			if (rsp == null) {
+				getLogger().warning("Plugin Dependency: No Economy Plugin detected!");
+				getServer().getPluginManager().disablePlugin(this);
+				return;
+			}
+			econ = rsp.getProvider();
+		}
+
+		/* Commands
+		-------------------------*/
 		new Beep(this);
 		new DI(this);
 
-		// Plugins
+		/* Events
+		-------------------------*/
 		new Damage(this);
 		new Despawn(this);
 		new InventoryClick(this);
@@ -54,6 +78,8 @@ public class Main extends JavaPlugin {
 	public void onDisable() {
 		super.onDisable();
 
+		/* Shutdown
+		-------------------------*/
 		file.set("items", itemStacks);
 		try {
 			file.save(path + "items.yml");
