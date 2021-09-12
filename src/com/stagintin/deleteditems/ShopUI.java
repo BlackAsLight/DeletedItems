@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShopUI {
-	public final static String title = Utils.chat("&3Deleted Items");
+	public final static String title = "Deleted Items";
 	public final static int slots = 54; // Must be a multiple of 9, and a max of 54.
 
 	public static Inventory Shop(Player player) {
@@ -22,6 +22,7 @@ public class ShopUI {
 		shop.setItem(46, Utils.createItemStack("-1", Material.WHITE_CANDLE, 1));
 		shop.setItem(47, Utils.createItemStack("-4", Material.LIGHT_GRAY_CANDLE, 4));
 		shop.setItem(48, Utils.createItemStack("-8", Material.BLACK_CANDLE, 8));
+		shop.setItem(49, Utils.createItemStack("Page Settings", Material.BOOK, 1));
 		shop.setItem(50, Utils.createItemStack("+8", Material.BLACK_CANDLE, 8));
 		shop.setItem(51, Utils.createItemStack("+4", Material.LIGHT_GRAY_CANDLE, 4));
 		shop.setItem(52, Utils.createItemStack("+1", Material.WHITE_CANDLE, 1));
@@ -34,58 +35,48 @@ public class ShopUI {
 		if (itemMeta != null) {
 			String displayName = itemMeta.getDisplayName().toLowerCase();
 			switch (displayName) {
-				case "previous" -> PreviousPage(shop, player, itemMeta);
-				case "-1" -> NegOne(shop, player);
-				case "-4" -> NegFour(shop, player);
-				case "-8" -> NegEight(shop, player);
-				case "+8" -> PlusEight(shop, player);
-				case "+4" -> PlusFour(shop, player);
-				case "+1" -> PlusOne(shop, player);
-				case "next" -> NextPage(shop, player, itemMeta);
+				case "first" -> LoadPage(shop, 0);
+				case "previous" -> PreviousPage(shop, itemMeta);
+				case "-1" -> UpdatePage(shop, -1);
+				case "-4" -> UpdatePage(shop, -4);
+				case "-8" -> UpdatePage(shop, -8);
+				case "page settings" -> SettingsPage(shop);
+				case "+8" -> UpdatePage(shop, 8);
+				case "+4" -> UpdatePage(shop, 4);
+				case "+1" -> UpdatePage(shop, 1);
+				case "next" -> NextPage(shop, itemMeta);
+				case "last" -> LoadPage(shop, (int) Math.ceil(Main.itemStacks.toArray().length / 45));
 				default -> BuyItem(player, itemStack);
 			}
 		}
 	}
 
-	private static void PreviousPage(Inventory shop, Player player, ItemMeta meta) {
+	private static void PreviousPage(Inventory shop, ItemMeta meta) {
 		int page = Integer.parseInt(meta.getLore().get(0).split(" ")[1]) - 1;
 		if (page >= 0)
 			LoadPage(shop, page);
-		else
-			player.sendMessage("No More Pages!");
 	}
 
-	private static void NegOne(Inventory shop, Player player) {
-
+	private static void SettingsPage(Inventory shop) {
+		ItemStack itemStack = shop.getItem(49);
+		int amount = itemStack.getAmount();
+		if (amount == 1) {
+			shop.setItem(45, UpdateDisplayName(shop.getItem(45), "First"));
+			shop.setItem(53, UpdateDisplayName(shop.getItem(53), "Last"));
+		}
+		else {
+			shop.setItem(45, UpdateDisplayName(shop.getItem(45), "Previous"));
+			shop.setItem(53, UpdateDisplayName(shop.getItem(53), "Next"));
+		}
+		itemStack.setAmount(amount % 2 + 1);
+		shop.setItem(49, itemStack);
 	}
 
-	private static void NegFour(Inventory shop, Player player) {
-
-	}
-
-	private static void NegEight(Inventory shop, Player player) {
-
-	}
-
-	private static void PlusEight(Inventory shop, Player player) {
-
-	}
-
-	private static void PlusFour(Inventory shop, Player player) {
-
-	}
-
-	private static void PlusOne(Inventory shop, Player player) {
-
-	}
-
-	private static void NextPage(Inventory shop, Player player, ItemMeta meta) {
+	private static void NextPage(Inventory shop, ItemMeta meta) {
 		int page = Integer.parseInt(meta.getLore().get(0).split(" ")[1]) + 1;
 		int items = Main.itemStacks.toArray().length;
 		if (45 * page < items)
 			LoadPage(shop, page);
-		else
-			player.sendMessage("No More Pages!");
 	}
 
 	private static void BuyItem(Player player, ItemStack itemStack) {
@@ -116,7 +107,27 @@ public class ShopUI {
 			else
 				shop.setItem(i, null);
 		}
-		shop.setItem(45, Utils.createItemStack("Previous", Material.PAPER, 1, "Page: " + page));
-		shop.setItem(53, Utils.createItemStack("Next", Material.PAPER, 1, "Page: " + page));
+		ItemStack left = shop.getItem(45);
+		ItemStack right = shop.getItem(53);
+		shop.setItem(45, Utils.createItemStack(left == null ? "Previous" : left.getItemMeta().getDisplayName(), Material.PAPER, 1, "Page: " + page));
+		shop.setItem(53, Utils.createItemStack(right == null ? "Next" : right.getItemMeta().getDisplayName(), Material.PAPER, 1, "Page: " + page));
+	}
+
+	private static ItemStack UpdateDisplayName(ItemStack itemStack, String displayName) {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(displayName);
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
+	}
+
+	private static void UpdatePage(Inventory shop, int amount) {
+		ItemStack[] itemStacks = shop.getContents();
+		for (int i = 0; i < 45; ++i) {
+			ItemStack itemStack = itemStacks[i];
+			if (itemStack != null) {
+				itemStack.setAmount(Math.max(1, Math.min(amount + itemStack.getAmount(), Math.min(itemStack.getMaxStackSize(), Integer.parseInt(itemStack.getItemMeta().getLore().get(1).split(" ")[1])))));
+				shop.setItem(i, itemStack);
+			}
+		}
 	}
 }
