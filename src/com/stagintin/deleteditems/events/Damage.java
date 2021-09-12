@@ -22,12 +22,7 @@ public class Damage implements Listener {
 		if (entity.getType() == EntityType.DROPPED_ITEM) {
 			Item item = (Item) entity;
 			if (item.getLastDamageCause() == null) {
-				try {
-					Main.addItem(item.getItemStack());
-				} catch (Exception error) {
-					plugin.getLogger().warning("Failed to add item, " + item.getName() + ", to database.");
-					plugin.getLogger().warning(error.getMessage());
-				}
+				Main.addItem(item.getItemStack());
 			}
 		}
 	}

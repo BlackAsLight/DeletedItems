@@ -17,12 +17,6 @@ public class Despawn implements Listener {
 	@EventHandler
 	public void onDespawn(ItemDespawnEvent event) {
 		Item item = event.getEntity();
-		try {
-			Main.addItem(item.getItemStack());
-		}
-		catch (Exception error) {
-			plugin.getLogger().warning("Failed to add item, " + item.getName() + ", to database.");
-			plugin.getLogger().warning(error.getMessage());
-		}
+		Main.addItem(item.getItemStack());
 	}
 }

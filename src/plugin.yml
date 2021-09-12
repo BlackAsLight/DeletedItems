@@ -1,12 +1,10 @@
 name: DeletedItems
 author: BlackAsLight
 main: com.stagintin.deleteditems.Main
-version: 0.0.8
+version: 0.0.9
 api-version: 1.17
 description: A plugin that catches deleted items.
 commands:
-  beep:
-    description: Responds with Boop
   di:
     aliases: [deleteditems]
     description: Opens up the Shop Inventory

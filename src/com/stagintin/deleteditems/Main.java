@@ -3,8 +3,12 @@ package com.stagintin.deleteditems;
 import com.stagintin.deleteditems.commands.*;
 import com.stagintin.deleteditems.events.*;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +22,7 @@ public class Main extends JavaPlugin {
 	public static Economy econ;
 	private static YamlConfiguration file;
 	private static List<ItemStack> itemStacks;
+	private static int totalItems;
 	private static int count = 0;
 
 	@Override
@@ -42,6 +47,11 @@ public class Main extends JavaPlugin {
 		if (itemStacks == null)
 			itemStacks = new ArrayList<>();
 
+		// Calculate the Total Weight
+		totalItems = 0;
+		for (ItemStack stack : itemStacks)
+			totalItems += stack.getAmount();
+
 		/* Dependencies
 		-------------------------*/
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -61,7 +71,6 @@ public class Main extends JavaPlugin {
 
 		/* Commands
 		-------------------------*/
-		new Beep(this);
 		new DI(this);
 
 		/* Events
@@ -95,7 +104,20 @@ public class Main extends JavaPlugin {
 		getLogger().info(message);
 	}
 
-	public static void addItem(ItemStack itemStack) throws IOException {
+	public static long calPrice(ItemStack itemStack) {
+		double weight = totalItems - itemStack.getAmount();
+		double multiply = 0;
+		Damageable itemMeta = (Damageable) itemStack.getItemMeta();
+		for (Enchantment enchant : itemMeta.getEnchants().keySet())
+			multiply += (double) itemMeta.getEnchants().get(enchant) / enchant.getMaxLevel() * 25;
+		if (multiply != 0)
+			weight *= multiply;
+		if (itemStack.getType().getMaxDurability() != 0)
+			weight *= 1 - ((double) itemMeta.getDamage() / itemStack.getType().getMaxDurability());
+		return Math.round(weight * 100) / 100;
+	}
+
+	public static void addItem(ItemStack itemStack) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		itemMeta.setDisplayName(null);
 		itemStack.setItemMeta(itemMeta);
@@ -115,13 +137,8 @@ public class Main extends JavaPlugin {
 		if (!found)
 			itemStacks.add(itemStack);
 
-		count %= 10;
-		if (count++ == 0) {
-			// Save Content to File
-			itemStacks.sort((o1, o2) -> o2.getAmount() - o1.getAmount());
-			file.set("items", itemStacks);
-			file.save(path + "items.yml");
-		}
+		totalItems += itemStack.getAmount();
+		itemUpdate();
 	}
 
 	public static List<ItemStack> getItemStacks() {
@@ -136,8 +153,29 @@ public class Main extends JavaPlugin {
 					stack.setAmount(stack.getAmount() - amount);
 					if (stack.getAmount() == 0)
 						itemStacks.remove(stack);
+					totalItems -= amount;
+					itemUpdate();
 					return amount;
 				}
 		return 0;
+	}
+
+	private static void itemUpdate() {
+		count %= 10;
+		if (count++ == 0) {
+			// Save Content to File
+			itemStacks.sort((o1, o2) -> o2.getAmount() - o1.getAmount());
+			try {
+				file.set("items", itemStacks);
+				file.save(path + "items.yml");
+			}
+			catch (Exception e) {
+				Bukkit.getLogger().warning("Failed to save items.yml.");
+				Bukkit.getLogger().warning(e.getMessage());
+			}
+			totalItems = 0;
+			for (ItemStack stack : itemStacks)
+				totalItems += stack.getAmount();
+		}
 	}
 }
