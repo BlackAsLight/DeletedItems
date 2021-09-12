@@ -1,10 +1,12 @@
 package com.stagintin.deleteditems;
 
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -45,8 +47,8 @@ public class ShopUI {
 				case "+4" -> UpdatePage(shop, 4);
 				case "+1" -> UpdatePage(shop, 1);
 				case "next" -> NextPage(shop, itemMeta);
-				case "last" -> LoadPage(shop, (int) Math.ceil(Main.itemStacks.toArray().length / 45));
-				default -> BuyItem(player, itemStack);
+				case "last" -> LoadPage(shop, (int) Math.ceil((Main.itemStacks.toArray().length - 1) / 45));
+				default -> BuyItem(shop, player, itemStack);
 			}
 		}
 	}
@@ -79,8 +81,41 @@ public class ShopUI {
 			LoadPage(shop, page);
 	}
 
-	private static void BuyItem(Player player, ItemStack itemStack) {
+	private static void BuyItem(Inventory shop, Player player, ItemStack itemStack) {
+		PlayerInventory inventory = player.getInventory();
+		ItemStack[] slots = inventory.getContents();
+		int slot = -1;
+		for (int i = 0; i < 36; ++i) {
+			if (slots[i] == null) {
+				slot = i;
+				break;
+			}
+		}
+		if (slot == -1) {
+			player.sendMessage("Your Inventory is Full!");
+		}
+		else {
+			ItemMeta itemMeta = itemStack.getItemMeta();
+			double price = Double.parseDouble(itemMeta.getLore().get(0).split("/")[0].split("\\$")[1]);
 
+			double balance = Main.econ.getBalance(player);
+			int amount = itemStack.getAmount();
+			if (amount * price > balance)
+				amount = (int) Math.floor(balance / price);
+			if (amount > 0) {
+				itemMeta.setLore(null);
+				itemStack.setItemMeta(itemMeta);
+				itemStack.setAmount(amount);
+				amount = Main.subtractItem(itemStack);
+				Main.econ.withdrawPlayer(player, amount * price);
+				itemStack.setAmount(amount);
+				inventory.setItem(slot, itemStack);
+				player.sendMessage(itemStack.getType() + ": $" + amount * price);
+				LoadPage(shop, Math.min(Integer.parseInt(shop.getItem(53).getItemMeta().getLore().get(0).split(" ")[1]), (int) Math.ceil((Main.itemStacks.toArray().length - 1) / 45)));
+			}
+			else
+				player.sendMessage("You don't have enough Money to purchase that.");
+		}
 	}
 
 	private static void LoadPage(Inventory shop, int page) {

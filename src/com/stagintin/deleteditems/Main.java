@@ -15,7 +15,7 @@ import java.util.*;
 
 public class Main extends JavaPlugin {
 	public final static String path = "plugins/DeletedItems/";
-	private static Economy econ;
+	public static Economy econ;
 	private static YamlConfiguration file;
 	public static List<ItemStack> itemStacks;
 	private static int count = 0;
@@ -122,5 +122,18 @@ public class Main extends JavaPlugin {
 			file.set("items", itemStacks);
 			file.save(path + "items.yml");
 		}
+	}
+
+	public static int subtractItem(ItemStack itemStack) {
+		for (ItemStack stack : itemStacks)
+			if (stack.getType() == itemStack.getType())
+				if (stack.getItemMeta().hashCode() == itemStack.getItemMeta().hashCode()) {
+					int amount = Math.min(stack.getAmount(), itemStack.getAmount());
+					stack.setAmount(stack.getAmount() - amount);
+					if (stack.getAmount() == 0)
+						itemStacks.remove(stack);
+					return amount;
+				}
+		return 0;
 	}
 }
