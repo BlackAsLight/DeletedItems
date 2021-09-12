@@ -47,7 +47,7 @@ public class ShopUI {
 				case "+4" -> UpdatePage(shop, 4);
 				case "+1" -> UpdatePage(shop, 1);
 				case "next" -> NextPage(shop, itemMeta);
-				case "last" -> LoadPage(shop, (int) Math.ceil((Main.itemStacks.toArray().length - 1) / 45));
+				case "last" -> LoadPage(shop, (int) Math.ceil((Main.getItemStacks().toArray().length - 1) / 45));
 				default -> BuyItem(shop, player, itemStack);
 			}
 		}
@@ -76,7 +76,7 @@ public class ShopUI {
 
 	private static void NextPage(Inventory shop, ItemMeta meta) {
 		int page = Integer.parseInt(meta.getLore().get(0).split(" ")[1]) + 1;
-		int items = Main.itemStacks.toArray().length;
+		int items = Main.getItemStacks().toArray().length;
 		if (45 * page < items)
 			LoadPage(shop, page);
 	}
@@ -111,7 +111,7 @@ public class ShopUI {
 				itemStack.setAmount(amount);
 				inventory.setItem(slot, itemStack);
 				player.sendMessage(itemStack.getType() + ": $" + amount * price);
-				LoadPage(shop, Math.min(Integer.parseInt(shop.getItem(53).getItemMeta().getLore().get(0).split(" ")[1]), (int) Math.ceil((Main.itemStacks.toArray().length - 1) / 45)));
+				LoadPage(shop, Math.min(Integer.parseInt(shop.getItem(53).getItemMeta().getLore().get(0).split(" ")[1]), (int) Math.ceil((Main.getItemStacks().toArray().length - 1) / 45)));
 			}
 			else
 				player.sendMessage("You don't have enough Money to purchase that.");
@@ -119,11 +119,11 @@ public class ShopUI {
 	}
 
 	private static void LoadPage(Inventory shop, int page) {
-		int items = Main.itemStacks.toArray().length;
+		int items = Main.getItemStacks().toArray().length;
 		for (int i = 0; i < 45; ++i) {
 			int index = 45 * page + i;
 			if (index < items) {
-				ItemStack itemStack = Main.itemStacks.get(index).clone();
+				ItemStack itemStack = Main.getItemStacks().get(index).clone();
 
 				ItemMeta itemMeta = itemStack.getItemMeta();
 				List<String> subLines = new ArrayList<>();

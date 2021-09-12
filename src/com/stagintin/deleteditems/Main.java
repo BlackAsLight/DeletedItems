@@ -17,7 +17,7 @@ public class Main extends JavaPlugin {
 	public final static String path = "plugins/DeletedItems/";
 	public static Economy econ;
 	private static YamlConfiguration file;
-	public static List<ItemStack> itemStacks;
+	private static List<ItemStack> itemStacks;
 	private static int count = 0;
 
 	@Override
@@ -122,6 +122,10 @@ public class Main extends JavaPlugin {
 			file.set("items", itemStacks);
 			file.save(path + "items.yml");
 		}
+	}
+
+	public static List<ItemStack> getItemStacks() {
+		return itemStacks;
 	}
 
 	public static int subtractItem(ItemStack itemStack) {
