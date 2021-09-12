@@ -14,20 +14,22 @@ public class Utils {
 		return ChatColor.translateAlternateColorCodes('&', s);
 	}
 
-	public static void createItem(Inventory inv, String materialId, int amount, int invSlot, String displayName, String... loreString) {
-		ItemStack item;
-		List<String> lore = new ArrayList<>();
+	public static ItemStack createItemStack(Material id, int amount) {
+		return new ItemStack(id, amount);
+	}
 
-		item = new ItemStack(Material.getMaterial(materialId), amount);
-
-		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(Utils.chat(displayName));
-		for (String s : loreString) {
-			lore.add(Utils.chat(s));
+	public static ItemStack createItemStack(String displayName, Material id, int amount, String... subLines) {
+		ItemStack itemStack = createItemStack(id, amount);
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if (displayName != null)
+			itemMeta.setDisplayName(displayName);
+		if (subLines.length > 0) {
+			List<String> lines = new ArrayList<>();
+			for (String line : subLines)
+				lines.add(chat(line));
+			itemMeta.setLore(lines);
 		}
-		meta.setLore(lore);
-		item.setItemMeta(meta);
-
-		inv.setItem(invSlot -1, item);
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
 	}
 }

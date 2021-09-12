@@ -1,7 +1,7 @@
 package com.stagintin.deleteditems.events;
 
 import com.stagintin.deleteditems.Main;
-import com.stagintin.deleteditems.UI;
+import com.stagintin.deleteditems.ShopUI;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,10 +15,10 @@ public class InventoryDrag implements Listener {
 	@EventHandler
 	public void onDrag(InventoryDragEvent event) {
 		// If Shop Inventory is open...
-		if (event.getView().getTitle().equalsIgnoreCase(UI.inventory_name)) {
+		if (event.getView().getTitle().equalsIgnoreCase(ShopUI.title)) {
 			// If one of the slots Dragged belonged to the Shop...
 			for (int slot : event.getRawSlots()) {
-				if (slot < UI.inv_slots) {
+				if (slot < ShopUI.slots) {
 					// Cancel that Drag.
 					event.setCancelled(true);
 					return;

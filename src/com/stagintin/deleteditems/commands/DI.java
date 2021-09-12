@@ -1,7 +1,7 @@
 package com.stagintin.deleteditems.commands;
 
 import com.stagintin.deleteditems.Main;
-import com.stagintin.deleteditems.UI;
+import com.stagintin.deleteditems.ShopUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,11 +14,10 @@ public class DI implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-		if (!(commandSender instanceof Player)) {
+		if (!(commandSender instanceof Player))
 			return true;
-		}
 		Player player = (Player) commandSender;
-		player.openInventory(UI.GUI(player));
+		player.openInventory(ShopUI.Shop(player));
 		return false;
 	}
 }

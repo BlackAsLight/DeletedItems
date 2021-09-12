@@ -5,6 +5,7 @@ import com.stagintin.deleteditems.events.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,7 +17,7 @@ public class Main extends JavaPlugin {
 	public final static String path = "plugins/DeletedItems/";
 	private static Economy econ;
 	private static YamlConfiguration file;
-	private static List<ItemStack> itemStacks;
+	public static List<ItemStack> itemStacks;
 	private static int count = 0;
 
 	@Override
@@ -68,7 +69,6 @@ public class Main extends JavaPlugin {
 		new Damage(this);
 		new Despawn(this);
 		new InventoryClick(this);
-		UI.initialize();
 		new InventoryDrag(this);
 
 		getLogger().info("DeleteItems has been enabled! " + this.getConfig().getString("version"));
@@ -91,21 +91,29 @@ public class Main extends JavaPlugin {
 		getLogger().info("DeleteItems has been disabled!");
 	}
 
-	public static void addItem(ItemStack item) throws IOException {
+	public void logInfo(String message) {
+		getLogger().info(message);
+	}
+
+	public static void addItem(ItemStack itemStack) throws IOException {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(null);
+		itemStack.setItemMeta(itemMeta);
+
 		// Look if ItemStack already exists.
 		boolean found = false;
 		for (ItemStack stack : itemStacks)
-			if (stack.getType() == item.getType())
-				if (stack.getItemMeta().hashCode() == item.getItemMeta().hashCode()) {
+			if (stack.getType() == itemStack.getType())
+				if (stack.getItemMeta().hashCode() == itemMeta.hashCode()) {
 					// If so increase amount in list.
-					stack.setAmount(stack.getAmount() + item.getAmount());
+					stack.setAmount(stack.getAmount() + itemStack.getAmount());
 					found = true;
 					break;
 				}
 
 		// If not, add itemStack to end of list.
 		if (!found)
-			itemStacks.add(item);
+			itemStacks.add(itemStack);
 
 		count %= 10;
 		if (count++ == 0) {

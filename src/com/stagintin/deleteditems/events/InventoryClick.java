@@ -1,8 +1,9 @@
 package com.stagintin.deleteditems.events;
 
 import com.stagintin.deleteditems.Main;
-import com.stagintin.deleteditems.UI;
+import com.stagintin.deleteditems.ShopUI;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,7 +19,7 @@ public class InventoryClick implements Listener {
 	@EventHandler
 	public void onClick(InventoryClickEvent event) {
 		// If Shop Inventory is open...
-		if (event.getView().getTitle().equalsIgnoreCase(UI.inventory_name)) {
+		if (event.getView().getTitle().equalsIgnoreCase(ShopUI.title)) {
 			Inventory inventory = event.getClickedInventory();
 
 			// return if Player dropped item outside any Inventory.
@@ -36,8 +37,9 @@ public class InventoryClick implements Listener {
 
 				// If Player isn't holding anything...
 				if (event.getCursor() != null) {
-					// Then Player is trying to purchase an item.
-					plugin.getLogger().info("User is trying to buy from shop!");
+					// Then Player made a legitimate click on an Item.
+					plugin.getLogger().info("Player made a legitimate click on an Item in the Shop.");
+					ShopUI.Click(inventory, (Player) event.getWhoClicked(), event.getCurrentItem());
 				}
 			}
 			// cancel if Player tries shifting from Player Inventory to Shop Inventory.
