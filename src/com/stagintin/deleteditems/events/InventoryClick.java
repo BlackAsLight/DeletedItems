@@ -38,7 +38,6 @@ public class InventoryClick implements Listener {
 				// If Player isn't holding anything...
 				if (event.getCursor() != null) {
 					// Then Player made a legitimate click on an Item.
-					plugin.getLogger().info("Player made a legitimate click on an Item in the Shop.");
 					ShopUI.Click(inventory, (Player) event.getWhoClicked(), event.getCurrentItem());
 				}
 			}

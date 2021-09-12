@@ -11,35 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShopUI {
-	public final static String title = Utils.chat("&cShop: Deleted Items");
+	public final static String title = Utils.chat("&3Deleted Items");
 	public final static int slots = 54; // Must be a multiple of 9, and a max of 54.
 
 	public static Inventory Shop(Player player) {
 		Inventory shop = Bukkit.createInventory(null, slots, title);
 
-		int items = Main.itemStacks.toArray().length;
-		if (items > 45)
-			items = 45;
-
-		for (int i = 0; i < items; ++i) {
-			ItemStack itemStack = Main.itemStacks.get(i).clone();
-			ItemMeta itemMeta = itemStack.getItemMeta();
-			List<String> subLines = new ArrayList<>();
-			subLines.add("$1.95/Item");
-			subLines.add("Stock: " + itemStack.getAmount());
-			itemMeta.setLore(subLines);
-			itemStack.setItemMeta(itemMeta);
-			shop.setItem(i, itemStack);
-		}
-
-		shop.setItem(45, Utils.createItemStack("Previous", Material.PAPER, 1, "Page: 0"));
+		int page = 0;
+		LoadPage(shop, page);
 		shop.setItem(46, Utils.createItemStack("-1", Material.WHITE_CANDLE, 1));
 		shop.setItem(47, Utils.createItemStack("-4", Material.LIGHT_GRAY_CANDLE, 4));
 		shop.setItem(48, Utils.createItemStack("-8", Material.BLACK_CANDLE, 8));
 		shop.setItem(50, Utils.createItemStack("+8", Material.BLACK_CANDLE, 8));
 		shop.setItem(51, Utils.createItemStack("+4", Material.LIGHT_GRAY_CANDLE, 4));
 		shop.setItem(52, Utils.createItemStack("+1", Material.WHITE_CANDLE, 1));
-		shop.setItem(53, Utils.createItemStack("Next", Material.PAPER, 1, "Page: 0"));
 
 		return shop;
 	}
@@ -64,26 +49,8 @@ public class ShopUI {
 
 	private static void PreviousPage(Inventory shop, Player player, ItemMeta meta) {
 		int page = Integer.parseInt(meta.getLore().get(0).split(" ")[1]) - 1;
-		if (page >= 0) {
-			int items = Main.itemStacks.toArray().length;
-			for (int i = 0; i < 45; ++i) {
-				int index = 45 * page + i;
-				if (index < items) {
-					ItemStack itemStack = Main.itemStacks.get(index).clone();
-					ItemMeta itemMeta = itemStack.getItemMeta();
-					List<String> subLines = new ArrayList<>();
-					subLines.add("$1.95/Item");
-					subLines.add("Stock: " + itemStack.getAmount());
-					itemMeta.setLore(subLines);
-					itemStack.setItemMeta(itemMeta);
-					shop.setItem(i, itemStack);
-				}
-				else
-					shop.setItem(i, null);
-			}
-			shop.setItem(45, Utils.createItemStack("Previous", Material.PAPER, 1, "Page: " + page));
-			shop.setItem(53, Utils.createItemStack("Next", Material.PAPER, 1, "Page: " + page));
-		}
+		if (page >= 0)
+			LoadPage(shop, page);
 		else
 			player.sendMessage("No More Pages!");
 	}
@@ -115,29 +82,41 @@ public class ShopUI {
 	private static void NextPage(Inventory shop, Player player, ItemMeta meta) {
 		int page = Integer.parseInt(meta.getLore().get(0).split(" ")[1]) + 1;
 		int items = Main.itemStacks.toArray().length;
-		if (45 * page < items) {
-			for (int i = 0; i < 45; ++i) {
-				int index = 45 * page + i;
-				if (index < items) {
-					ItemStack itemStack = Main.itemStacks.get(index).clone();
-					ItemMeta itemMeta = itemStack.getItemMeta();
-					List<String> subLines = new ArrayList<>();
-					subLines.add("$1.95/Item");
-					subLines.add("Stock: " + itemStack.getAmount());
-					itemMeta.setLore(subLines);
-					itemStack.setItemMeta(itemMeta);
-					shop.setItem(i, itemStack);
-				} else
-					shop.setItem(i, null);
-			}
-			shop.setItem(45, Utils.createItemStack("Previous", Material.PAPER, 1, "Page: " + page));
-			shop.setItem(53, Utils.createItemStack("Next", Material.PAPER, 1, "Page: " + page));
-		}
+		if (45 * page < items)
+			LoadPage(shop, page);
 		else
 			player.sendMessage("No More Pages!");
 	}
 
 	private static void BuyItem(Player player, ItemStack itemStack) {
 
+	}
+
+	private static void LoadPage(Inventory shop, int page) {
+		int items = Main.itemStacks.toArray().length;
+		for (int i = 0; i < 45; ++i) {
+			int index = 45 * page + i;
+			if (index < items) {
+				ItemStack itemStack = Main.itemStacks.get(index).clone();
+
+				ItemMeta itemMeta = itemStack.getItemMeta();
+				List<String> subLines = new ArrayList<>();
+				subLines.add("$1.95/Item");
+				subLines.add("Stock: " + itemStack.getAmount());
+				itemMeta.setLore(subLines);
+				itemStack.setItemMeta(itemMeta);
+
+				int maxAmount = itemStack.getMaxStackSize();
+				if (maxAmount < itemStack.getAmount()) {
+					itemStack.setAmount(maxAmount);
+				}
+
+				shop.setItem(i, itemStack);
+			}
+			else
+				shop.setItem(i, null);
+		}
+		shop.setItem(45, Utils.createItemStack("Previous", Material.PAPER, 1, "Page: " + page));
+		shop.setItem(53, Utils.createItemStack("Next", Material.PAPER, 1, "Page: " + page));
 	}
 }
