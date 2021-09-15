@@ -126,7 +126,7 @@ public class ShopUI {
 
 				ItemMeta itemMeta = itemStack.getItemMeta();
 				List<String> subLines = new ArrayList<>();
-				subLines.add("$" + Main.calPrice(itemStack) + "/Item");
+				subLines.add("$" + Main.calcPrice(itemStack) + "/Item");
 				subLines.add("Stock: " + itemStack.getAmount());
 				itemMeta.setLore(subLines);
 				itemStack.setItemMeta(itemMeta);

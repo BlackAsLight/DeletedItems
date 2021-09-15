@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,6 +81,8 @@ public class Main extends JavaPlugin {
 		new InventoryClick(this);
 		new InventoryDrag(this);
 
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Main::reduceDurability, 30 * 60 * 20, 30 * 60 * 20);
+
 		getLogger().info("DeleteItems has been enabled! " + this.getConfig().getString("version"));
 	}
 
@@ -104,17 +107,41 @@ public class Main extends JavaPlugin {
 		getLogger().info(message);
 	}
 
-	public static long calPrice(ItemStack itemStack) {
-		double weight = totalItems - itemStack.getAmount();
-		double multiply = 0;
+	public static double calcPrice(ItemStack itemStack) {
+		double basePrice = ((double)(totalItems - itemStack.getAmount())) / itemStacks.toArray().length / itemStack.getType().getMaxStackSize();
 		Damageable itemMeta = (Damageable) itemStack.getItemMeta();
-		for (Enchantment enchant : itemMeta.getEnchants().keySet())
-			multiply += (double) itemMeta.getEnchants().get(enchant) / enchant.getMaxLevel() * 25;
-		if (multiply != 0)
-			weight *= multiply;
+		basePrice *= calcEnchantModifier(itemMeta);
 		if (itemStack.getType().getMaxDurability() != 0)
-			weight *= 1 - ((double) itemMeta.getDamage() / itemStack.getType().getMaxDurability());
-		return Math.round(weight * 100) / 100;
+			basePrice *= 1 - ((double) itemMeta.getDamage() / itemStack.getType().getMaxDurability());
+		return Math.round(basePrice * 100) / 100.0;
+	}
+
+	public static double calcEnchantModifier(ItemMeta itemMeta) {
+		double modifier = 0;
+		for (Enchantment enchantment : itemMeta.getEnchants().keySet())
+			modifier += itemMeta.getEnchants().get(enchantment) * 5.0 / enchantment.getMaxLevel();
+		return modifier == 0 ? 1 : modifier;
+	}
+
+	public static void reduceDurability() {
+		int length = itemStacks.toArray().length;
+		for (int i = 0; i < length; ++i) {
+			ItemStack itemStack = itemStacks.get(i);
+			if (itemStack.getType().getMaxDurability() != 0) {
+				Damageable itemMeta = (Damageable) itemStack.getItemMeta();
+				if (itemMeta.getDamage() != 0) {
+					if (itemMeta.getDamage() == itemStack.getType().getMaxDurability()) {
+						itemStacks.remove(itemStack);
+						--i;
+						--length;
+					}
+					else {
+						itemMeta.setDamage(itemMeta.getDamage() + 1);
+						itemStacks.get(i).setItemMeta(itemMeta);
+					}
+				}
+			}
+		}
 	}
 
 	public static void addItem(ItemStack itemStack) {
