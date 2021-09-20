@@ -8,6 +8,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class Damage implements Listener {
 	private Main plugin;
@@ -22,7 +23,9 @@ public class Damage implements Listener {
 		if (entity.getType() == EntityType.DROPPED_ITEM) {
 			Item item = (Item) entity;
 			if (item.getLastDamageCause() == null) {
-				Main.addItem(item.getItemStack());
+				ItemStack itemStack = item.getItemStack();
+				Main.addItem(itemStack);
+				plugin.getLogger().info(Integer.toString(itemStack.getAmount()) + ' ' + itemStack.getType().name() + " got deleted by " + event.getCause().name() + '.');
 			}
 		}
 	}

@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,10 +47,20 @@ public class Main extends JavaPlugin {
 		if (itemStacks == null)
 			itemStacks = new ArrayList<>();
 
-		// Calculate the Total Items in the Shop.
+		// Calculate the Total Items in the Shop and remove AIR from itemStacks if it exists in there somehow.
+		int length = itemStacks.toArray().length;
 		totalItems = 0;
-		for (ItemStack stack : itemStacks)
-			totalItems += stack.getAmount();
+		for (int i = 0; i < length; ++i) {
+			ItemStack itemStack = itemStacks.get(i);
+			if (itemStack.getType() == Material.AIR) {
+				itemStacks.remove(itemStack);
+				--i;
+				--length;
+			}
+			else {
+				totalItems += itemStack.getAmount();
+			}
+		}
 
 		/* Dependencies
 		-------------------------*/
@@ -143,6 +152,14 @@ public class Main extends JavaPlugin {
 		// Iterate through every item in itemStacks.
 		for (int i = 0; i < length; ++i) {
 			ItemStack itemStack = itemStacks.get(i);
+			// If the itemStack is AIR, remove it from the Shop.
+			if (itemStack.getType() == Material.AIR) {
+				itemStacks.remove(itemStack);
+				--i;
+				--length;
+				continue;
+			}
+
 			// If itemStack's max durability isn't zero then it is an item that can take damage.
 			if (itemStack.getType().getMaxDurability() != 0) {
 				Damageable itemMeta = (Damageable) itemStack.getItemMeta();

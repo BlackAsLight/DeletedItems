@@ -130,17 +130,18 @@ public class ShopUI {
 
 			// Attempt to subtract amount from Shop, and save how much was actually subtracted.
 			amount = Main.subtractItem(itemStack);
+			final double cost = Math.round(amount * price * 100) / 100.0;
 
 			// Charge Player for the amount of items that were removed from the Shop.
-			Main.econ.withdrawPlayer(player, amount * price);
+			Main.econ.withdrawPlayer(player, cost);
 
 			// Give Player the amount of items that were removed from the Shop.
 			itemStack.setAmount(amount);
 			inventory.setItem(slot, itemStack);
 
 			// Send Message Confirming Trade.
-			player.sendMessage(itemStack.getType() + ": $" + amount * price);
-			Bukkit.getLogger().info(itemStack.getType() + ": $" + amount * price);
+			player.sendMessage(Integer.toString(amount) + ' ' + itemStack.getType().name() + " bought for $" + cost);
+			Bukkit.getLogger().info(player.getName() + " bought " + amount + ' ' + itemStack.getType().name() + " for $" + cost);
 
 			// Refresh Page for Player.
 			LoadPage(shop, Math.min(Integer.parseInt(shop.getItem(53).getItemMeta().getLore().get(0).split(" ")[1]), (int) Math.ceil((Main.getItemStacks().toArray().length - 1) / 45)));
