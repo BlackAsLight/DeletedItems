@@ -129,4 +129,4 @@ This plugin was made and tested on version 1.17.1 of the Spigot API. Should work
 
 ### Vault Plugin
 
-This plugin requires the [Vault](https://www.spigotmc.org/resources/vault.34315/) plugin **and** an economy plugin that also implements Vault](https://www.spigotmc.org/resources/vault.34315/).
+This plugin requires the [Vault](https://www.spigotmc.org/resources/vault.34315/) plugin **and** an economy plugin that also implements [Vault](https://www.spigotmc.org/resources/vault.34315/).
