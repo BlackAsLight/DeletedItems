@@ -19,7 +19,7 @@ Damaged Items, like swords, bows, pickaxes, etc, in the Shop lose one durability
  - When you open the shop GUI, with the `/di` command, you start on page 0. There is a paper bottom at each side of the bottom row to move to the next or previous page.
  - There is a book button at the centre of the bottom row which allows you to toggle those next/previous page buttons to last/first page buttons.
  - The items for sale in the shop is ordered in decending order of stock available, however it only checks the order periodically.
- - Damaged items in the shop, like swords, tools, and armour, lose one durability every half an hour until they're either purchased by a player or run out and get deleted. If these types of items go into the store undamaged then they won't lose durability and get deleted while in the shop.
+ - Items that can take damage, like sowrds, tools, and armour, lose one durability every half an hour until they're either purchased by a player or run out and deleted from the shop. Elytra is not exempt from hitting zero durability and getting deleted even though the lowest you can work it down to from flying is 1 durability.
 
 ### Price Calculation:
 
