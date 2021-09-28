@@ -1,7 +1,10 @@
 package com.stagintin.deleteditems;
 
-import com.stagintin.deleteditems.commands.*;
-import com.stagintin.deleteditems.events.*;
+import com.stagintin.deleteditems.commands.DI;
+import com.stagintin.deleteditems.events.Damage;
+import com.stagintin.deleteditems.events.Despawn;
+import com.stagintin.deleteditems.events.InventoryClick;
+import com.stagintin.deleteditems.events.InventoryDrag;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,7 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends JavaPlugin {
 	public final static String path = "plugins/DeletedItems/";
@@ -38,8 +42,7 @@ public class Main extends JavaPlugin {
 		file = YamlConfiguration.loadConfiguration(new File(path + "items.yml"));
 		try {
 			itemStacks = (List<ItemStack>) file.getList("items");
-		}
-		catch (Exception error) {
+		} catch (Exception error) {
 			// Can't read file's content. Will be rewritten.
 			getLogger().warning("Unable to read item.yml file. Will be written over!");
 		}
@@ -56,8 +59,7 @@ public class Main extends JavaPlugin {
 				itemStacks.remove(itemStack);
 				--i;
 				--length;
-			}
-			else {
+			} else {
 				totalItems += itemStack.getAmount();
 			}
 		}
@@ -94,7 +96,7 @@ public class Main extends JavaPlugin {
 
 		/* Schedules
 		-------------------------*/
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Main::reduceDurability, 30 * 60 * 20, 30 * 60 * 20);
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Main::reduceDurability, 20 * 60 * 30, 20 * 60 * 30); // Milliseconds * Seconds * Minutes
 
 		getLogger().info("DeleteItems has been enabled! " + this.getConfig().getString("version"));
 	}
@@ -119,7 +121,7 @@ public class Main extends JavaPlugin {
 	// Calculate the Price of an Item for the Shop.
 	public static double calcPrice(ItemStack itemStack) {
 		// Calculate basePrice.
-		double basePrice = ((double)(totalItems - itemStack.getAmount())) / itemStacks.toArray().length / itemStack.getType().getMaxStackSize();
+		double basePrice = ((double) (totalItems - itemStack.getAmount())) / itemStacks.toArray().length / itemStack.getType().getMaxStackSize();
 		Damageable itemMeta = (Damageable) itemStack.getItemMeta();
 
 		// Apply Enchantment Modifier to basePrice;
@@ -163,20 +165,17 @@ public class Main extends JavaPlugin {
 			// If itemStack's max durability isn't zero then it is an item that can take damage.
 			if (itemStack.getType().getMaxDurability() != 0) {
 				Damageable itemMeta = (Damageable) itemStack.getItemMeta();
-				// If itemStack has taken damage...
-				if (itemMeta.getDamage() != 0) {
-					// And it has zero durability left then...
-					if (itemMeta.getDamage() == itemStack.getType().getMaxDurability()) {
-						// Remove itemStack from itemStacks.
-						itemStacks.remove(itemStack);
-						--i;
-						--length;
-					}
-					// Else just reduce itemStack's durability by one.
-					else {
-						itemMeta.setDamage(itemMeta.getDamage() + 1);
-						itemStacks.get(i).setItemMeta(itemMeta);
-					}
+				// If itemStack has zero durability left then...
+				if (itemMeta.getDamage() == itemStack.getType().getMaxDurability()) {
+					// Remove itemStack from itemStacks.
+					itemStacks.remove(itemStack);
+					--i;
+					--length;
+				}
+				// Else just reduce itemStack's durability by one.
+				else {
+					itemMeta.setDamage(itemMeta.getDamage() + 1);
+					itemStacks.get(i).setItemMeta(itemMeta);
 				}
 			}
 		}
@@ -250,8 +249,7 @@ public class Main extends JavaPlugin {
 			try {
 				file.set("items", itemStacks);
 				file.save(path + "items.yml");
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				Bukkit.getLogger().warning("Failed to save items.yml.");
 				Bukkit.getLogger().warning(e.getMessage());
 			}
