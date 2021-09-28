@@ -9,8 +9,6 @@ This plugin detects when items despawn or get deleted (through methods of lava, 
 
 When it detects that these items get deleted it catches the item and places it into a GUI shop, that is accessed through `/di` command, where players can buy it from the server. If the item had a spacial name put on it by a player, that name will be removed before entering the Shop.
 
-Damaged Items, like swords, bows, pickaxes, etc, in the Shop lose one durability every half an hour (enchantments like unbreaking don't slow this process.) and once they run out of durability they get deleted from the shop. When these items enter the Shop undamaged they will be exlcuded from losing durability. This removes unwanted tools that acumulate from farms and just general gameplay that no player is likely to buy. This also reduces players ability to delude the shop's prices since the same item with different durability show up seperately in the shop and therefore count as two seperate unque items. For example if a tool has 500 durability left on it then it will take roughly 10.4 days for it to lose that durability and get removed from the Shop.
-
 ### GUI Description:
  - The shop GUI is the size of a double chest, with the first 5 rows being slots to buy stuff and the last bottom row being buttons for navigation and stuff.
  - Each item for sale in the shop is only displayed once.
@@ -20,6 +18,7 @@ Damaged Items, like swords, bows, pickaxes, etc, in the Shop lose one durability
  - There is a book button at the centre of the bottom row which allows you to toggle those next/previous page buttons to last/first page buttons.
  - The items for sale in the shop is ordered in decending order of stock available, however it only checks the order periodically.
  - Items that can take damage, like sowrds, tools, and armour, lose one durability every half an hour until they're either purchased by a player or run out and deleted from the shop. Elytra is not exempt from hitting zero durability and getting deleted even though the lowest you can work it down to from flying is 1 durability.
+   - Example: If a tool has 500 durability on it, it will take roughly 10.4 days for it to lose that and get removed from the shop.
 
 ### Price Calculation:
 
